@@ -1,0 +1,261 @@
+**SOLID Principles** என்பது Object-Oriented Design (OOP) முறையிலான **பின்பற்ற வேண்டிய வழிமுறைகள்** ஆகும். இவை சுயமாக செயல்படக்கூடிய, maintainable, மற்றும் scalable code-ஐ எழுத உதவுகிறது. SOLID என்பது ஐந்து principles-ஐ குறிக்கிறது:
+
+1. **S** - **Single Responsibility Principle (SRP)**
+2. **O** - **Open/Closed Principle (OCP)**
+3. **L** - **Liskov Substitution Principle (LSP)**
+4. **I** - **Interface Segregation Principle (ISP)**
+5. **D** - **Dependency Inversion Principle (DIP)**
+
+### 1. **Single Responsibility Principle (SRP)**
+ஒரு class-க்கு **ஒரே ஒரு காரணத்திற்காக** மட்டுமே மாற்றம் செய்ய முடியும். அதாவது, ஒரு class ஒரு job-ஐ மட்டுமே செய்ய வேண்டும்.
+
+#### **உதாரணம்:**
+```java
+class Report {
+    public void generateReport() {
+        // Report generation logic
+    }
+
+    public void printReport() {
+        // Report printing logic
+    }
+}
+```
+இதில், **Report** class-ல் report generate செய்யும் logic மற்றும் print செய்யும் logic இரண்டும் சேர்ந்து உள்ளது. இது SRP-க்கு மீறல். இதை சீர்செய்வது:
+
+```java
+class ReportGenerator {
+    public void generateReport() {
+        // Report generation logic
+    }
+}
+
+class ReportPrinter {
+    public void printReport() {
+        // Report printing logic
+    }
+}
+```
+இப்போது, **ReportGenerator** class report generate செய்யும், **ReportPrinter** class print செய்யும் வேலைக்கு மட்டும் பதிலளிக்கின்றன.
+
+### 2. **Open/Closed Principle (OCP)**
+ஒரு class **extension செய்யலாம்**, ஆனால் **modification செய்யக்கூடாது**. அதாவது, code-ஐ மாற்றாமல், புதிய functionality-ஐ சேர்க்க class-ஐ விரிவாக்க வேண்டும்.
+
+#### **உதாரணம்:**
+```java
+class Rectangle {
+    public double length;
+    public double width;
+}
+
+class AreaCalculator {
+    public double calculateArea(Rectangle rectangle) {
+        return rectangle.length * rectangle.width;
+    }
+}
+```
+இந்த code-ல், **Circle** போன்ற shape சேர்க்கும் போது AreaCalculator-ஐ modify செய்ய வேண்டியிருக்கும், இது OCP-க்கு விரோதமாக இருக்கும்.
+
+OCP-ஐ பின்பற்ற:
+
+```java
+interface Shape {
+    double calculateArea();
+}
+
+class Rectangle implements Shape {
+    public double length;
+    public double width;
+
+    public double calculateArea() {
+        return length * width;
+    }
+}
+
+class Circle implements Shape {
+    public double radius;
+
+    public double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+}
+
+class AreaCalculator {
+    public double calculateArea(Shape shape) {
+        return shape.calculateArea();
+    }
+}
+```
+இப்போது, **Shape**-ஐ implement செய்யும் எந்த class-ஐயும் AreaCalculator-ல் மாற்றம் செய்யாமல் extension செய்யலாம்.
+
+### 3. **Liskov Substitution Principle (LSP)**
+ஒரு **base class**-ஐ பயன்படுத்தும் எந்த program-யும், அதனுடைய **subclass**-ஐ base class போலவே பயன்படுத்த இயல வேண்டும், program-ல் எந்த பிரச்சினையும் இல்லாமல்.
+
+#### **உதாரணம்:**
+```java
+class Bird {
+    public void fly() {
+        System.out.println("Bird is flying");
+    }
+}
+
+class Penguin extends Bird {
+    public void fly() {
+        throw new UnsupportedOperationException("Penguins can't fly");
+    }
+}
+```
+இங்கு **Penguin** class **Bird** class-ஐ inherit செய்கிறது. ஆனால் Penguin காற்றில் பறக்க முடியாது, இது LSP-க்கு சிக்கல் ஏற்படுத்தும்.
+
+LSP-ஐ பின்பற்றி code-ஐ திருத்துவது:
+
+```java
+class Bird {}
+
+class FlyingBird extends Bird {
+    public void fly() {
+        System.out.println("Bird is flying");
+    }
+}
+
+class Penguin extends Bird {
+    // Penguins do not fly, so no fly method here
+}
+```
+இப்போது, **Penguin**-ஐ **Bird** எனக் கொண்டு கையாளலாம், LSP-யை மீறாமல்.
+
+### 4. **Interface Segregation Principle (ISP)**
+ஒரு class-க்கு தேவையில்லாத method-களை கொண்ட பெரிய interfaces-ஐ பயன்படுத்த வேண்டாம். அதற்குப் பதிலாக, சிறிய, குறிப்பிட்ட நுட்பம் கொண்ட interfaces-ஐ உருவாக்க வேண்டும்.
+
+#### **உதாரணம்:**
+```java
+interface Worker {
+    void work();
+    void eat();
+}
+
+class HumanWorker implements Worker {
+    public void work() {
+        System.out.println("Human is working");
+    }
+
+    public void eat() {
+        System.out.println("Human is eating");
+    }
+}
+
+class RobotWorker implements Worker {
+    public void work() {
+        System.out.println("Robot is working");
+    }
+
+    public void eat() {
+        // Robots don't eat, so this is unnecessary
+    }
+}
+```
+இங்கு, **RobotWorker** class-க்கு `eat()` method தேவை இல்லை, இது ISP-க்கு விரோதமாகும்.
+
+ISP-ஐ பின்பற்றி:
+
+```java
+interface Workable {
+    void work();
+}
+
+interface Eatable {
+    void eat();
+}
+
+class HumanWorker implements Workable, Eatable {
+    public void work() {
+        System.out.println("Human is working");
+    }
+
+    public void eat() {
+        System.out.println("Human is eating");
+    }
+}
+
+class RobotWorker implements Workable {
+    public void work() {
+        System.out.println("Robot is working");
+    }
+}
+```
+இப்போது, **RobotWorker** class-ல் **eat()** method தேவைப்படாது, மற்றும் unnecessary method-களை avoid செய்கிறது.
+
+### 5. **Dependency Inversion Principle (DIP)**
+High-level modules (classes) low-level modules-ஐ சார்ந்திருக்கக்கூடாது. இரண்டும் **abstractions**-ஐ சார்ந்திருக்க வேண்டும். Abstractions details-ஐ சார்ந்து இருக்கக் கூடாது; details, abstractions-ஐ சார்ந்திருக்க வேண்டும்.
+
+#### **உதாரணம்:**
+```java
+class Light {
+    public void turnOn() {
+        System.out.println("Light is on");
+    }
+
+    public void turnOff() {
+        System.out.println("Light is off");
+    }
+}
+
+class Switch {
+    private Light light;
+
+    public Switch(Light light) {
+        this.light = light;
+    }
+
+    public void operate() {
+        light.turnOn();
+    }
+}
+```
+இங்கு **Switch** class-ல் **Light** class directly depend ஆகிறது. இது DIP-க்கு எதிராக உள்ளது.
+
+DIP-ஐ பின்பற்றி:
+
+```java
+interface Switchable {
+    void turnOn();
+    void turnOff();
+}
+
+class Light implements Switchable {
+    public void turnOn() {
+        System.out.println("Light is on");
+    }
+
+    public void turnOff() {
+        System.out.println("Light is off");
+    }
+}
+
+class Fan implements Switchable {
+    public void turnOn() {
+        System.out.println("Fan is on");
+    }
+
+    public void turnOff() {
+        System.out.println("Fan is off");
+    }
+}
+
+class Switch {
+    private Switchable device;
+
+    public Switch(Switchable device) {
+        this.device = device;
+    }
+
+    public void operate() {
+        device.turnOn();
+    }
+}
+```
+இப்போது, **Switch** class-ல் **Switchable** interface-ஐ depend ஆகிவிட்டது, details-ஐ abstractions-ஐ சார வைத்துள்ளதால் DIP-ஐ பின்பற்றுகிறது.
+
+---
+
+இந்த SOLID principles-ஐ பயன்படுத்தினால், software development-ல் code-ஐ maintain, reuse, மற்றும் expand செய்ய எளிதாக இருக்கும்.
